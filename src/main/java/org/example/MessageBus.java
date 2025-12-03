@@ -9,7 +9,7 @@ class MessageBus {
   private final MetricsSPI metricsSPI;
   private final Map<String, Consumer<String>> messageConsumers = new HashMap<>();
 
-  MessageBus(MetricsSPI metricsSPI) {
+  MessageBus(MetricsSPI<?> metricsSPI) {
     this.metricsSPI = metricsSPI;
   }
 
@@ -20,9 +20,13 @@ class MessageBus {
   void deliverMessage(String address, String message) {
     Consumer<String> consumer = messageConsumers.get(address);
     if (consumer != null) {
-      metricsSPI.messageReceived(address);
-      consumer.accept(message);
-      metricsSPI.messageProcessed(address);
+      Object context = metricsSPI.messageReceived(address);
+      try {
+        consumer.accept(message);
+      }
+      finally {
+        metricsSPI.messageProcessed(address, context);
+      }
     }
 
   }

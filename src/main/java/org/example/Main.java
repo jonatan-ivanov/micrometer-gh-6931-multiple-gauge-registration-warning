@@ -1,19 +1,18 @@
 package org.example;
 
-import io.micrometer.core.instrument.config.MeterFilter;
+import io.micrometer.core.instrument.LongTaskTimer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.example.micrometer.MicrometerMetrics;
-import org.example.micrometer.meters.LongGauges;
-
-import java.util.concurrent.ConcurrentHashMap;
+import org.example.micrometer.meters.ActiveTaskMetrics;
 
 public class Main {
 
   public static void main(String[] args) {
     SimpleMeterRegistry registry = new SimpleMeterRegistry();
-    //registry.config().meterFilter(MeterFilter.ignoreTags("address"));
+//    registry.config().meterFilter(MeterFilter.ignoreTags("address"));
 
-    MessageBus bus = new MessageBus(new MicrometerMetrics(new LongGauges(new ConcurrentHashMap<>()), registry));
+//    MetricsSPI<Void> metricsSPI = new MicrometerMetrics(new LongGauges(new ConcurrentHashMap<>()), registry);
+    MetricsSPI<LongTaskTimer.Sample> metricsSPI = new ActiveTaskMetrics(registry);
+    MessageBus bus = new MessageBus(metricsSPI);
 
     bus.registerConsumer("foo", s -> {
       System.out.println(registry.getMetersAsString());

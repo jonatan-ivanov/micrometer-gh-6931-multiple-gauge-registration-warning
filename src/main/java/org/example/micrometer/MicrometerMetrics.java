@@ -7,7 +7,7 @@ import org.example.micrometer.meters.LongGauges;
 
 import java.util.concurrent.atomic.LongAdder;
 
-public class MicrometerMetrics implements MetricsSPI {
+public class MicrometerMetrics implements MetricsSPI<Void> {
 
   private final LongGauges longGauges;
   private final MeterRegistry registry;
@@ -18,15 +18,16 @@ public class MicrometerMetrics implements MetricsSPI {
   }
 
   @Override
-  public void messageReceived(String address) {
+  public Void messageReceived(String address) {
     LongAdder pending = longGauges.builder("messagePending", LongAdder::doubleValue)
       .tags(Tags.of("address", address))
       .register(registry);
     pending.increment();
+    return null;
   }
 
   @Override
-  public void messageProcessed(String address) {
+  public void messageProcessed(String address, Void context) {
     LongAdder pending = longGauges.builder("messagePending", LongAdder::doubleValue)
       .tags(Tags.of("address", address))
       .register(registry);

@@ -1,9 +1,9 @@
 package org.example;
 
-public interface MetricsSPI {
+public interface MetricsSPI<C> {
 
-  void messageReceived(String address);
+  C messageReceived(String address);
 
-  void messageProcessed(String address);
+  void messageProcessed(String address, C context);
 
 }
